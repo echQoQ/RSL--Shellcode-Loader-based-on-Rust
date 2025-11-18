@@ -1,0 +1,198 @@
+# RSL
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Language: Rust](https://img.shields.io/badge/Language-Rust-orange.svg)](https://www.rust-lang.org/)
+[![GUI: PyQt5](https://img.shields.io/badge/GUI-PyQt5-blue.svg)](https://www.riverbankcomputing.com/software/pyqt/)
+[![Based on](https://img.shields.io/badge/Based%20on-JoJoLoader-green.svg)](https://github.com/Pizz33/JoJoLoader)
+
+一款基于Rust的Shellcode Loader，具有图形化界面、多种加密方式、反沙箱检测和资源伪造功能。
+
+> 本项目基于 [JoJoLoader](https://github.com/Pizz33/JoJoLoader) 改进而来，增强了图形界面、扩展了加密方式和运行模式，并优化了配置管理系统。
+
+## ✨ 特性
+
+### 🔐 加密方式
+- **RC4** - 流加密算法
+- 可拓展...
+
+### 🚀 运行模式
+- **CreateThread 直接执行** - 传统线程创建方式
+- 可拓展...
+
+### 🛡️ VM/沙箱检测
+- **Tick 检测** - 时间差异分析
+- **鼠标轨迹检测** - 通过多点轨迹特征判断真实鼠标活动
+- 可拓展...
+
+## 📦 项目结构
+
+```
+RSL/
+├── gui/                    # PyQt5 图形界面
+│   ├── main_window.py     # 主窗口
+│   ├── widgets.py         # 自定义组件
+│   └── sign.py            # 签名相关组件
+├── src/                   # Rust 核心代码
+│   ├── main.rs            # 主程序入口
+│   ├── decrypt/           # 解密模块
+│   ├── exec/              # Shellcode 执行模块
+│   ├── guard/             # 反调试/反沙箱模块
+│   └── utils/             # 工具函数
+├── config/                # 配置文件
+│   └── plugins.json       # 插件配置
+├── icons/                 # 图标资源
+├── input/                 # Shellcode 输入目录
+├── output/                # 生成的可执行文件输出目录
+├── static/                # 图片
+├── encrypt.py             # 加密脚本
+├── main.py                # GUI 启动入口
+├── Cargo.toml             # Rust 项目配置
+└── build.rs               # 构建脚本
+
+```
+
+## 🚀 快速开始
+
+### 环境要求
+
+- **Python 3.7+**
+- **Rust 1.70+** (建议使用 rustup 安装)
+- **PyQt5**
+- **Cargo** (Rust 包管理器)
+
+### 安装依赖
+
+#### Python 依赖
+```bash
+pip install PyQt5 pycryptodome
+```
+
+**依赖说明：**
+- `PyQt5` - 图形界面框架
+- `pycryptodome` - 加密库（ChaCha20, AES-GCM, RC4 等）
+
+#### Rust 安装
+```bash
+# Windows
+# 访问 https://rustup.rs/ 下载安装
+
+# 验证安装
+cargo --version
+rustc --version
+```
+
+### 使用方法
+
+#### 1. 启动 GUI
+```bash
+python main.py
+```
+
+#### 3. 生成加载器
+点击 **"一键生成"** 按钮，程序将自动完成：
+- Shellcode 加密
+- Rust 编译（带特性选择）
+- 文件复制到 `output/` 目录
+- 签名伪造（如启用）
+
+## 🔒 免杀效果
+
+本项目通过多种技术手段实现对安全软件的检测绕过：
+
+- **加密保护**：使用 RC4 算法对 Shellcode 进行加密，防止静态分析工具直接识别恶意代码
+- **环境检测**：集成 Tick 计数检测、鼠标轨迹检测和桌面文件数量检测，能够识别虚拟机或沙箱环境，避免在可疑环境中执行
+- **执行方式**：采用 CreateThread 直接执行模式，通过动态 API 解析减少导入表特征，降低被检测的风险
+- **代码混淆**：Rust 编译器的优化和无默认特征编译，进一步减小可执行文件的特征指纹
+
+这些特性组合使用，能够有效提高 Shellcode 加载器的隐蔽性和生存能力。
+
+## ⚙️ 配置文件
+
+`config/plugins.json` 控制所有功能模块：
+
+```json
+{
+  "encryption": [
+    { "id": "rc4", "label": "rc4", "encrypt_arg": "rc4", "feature": "decrypt_rc4" }
+  ],
+  "run_modes": [
+    { "id": "create_thread", "label": "CreateThread 直接执行 (create_thread)", "feature": "run_create_thread" }
+  ],
+  "vm_checks": [
+    { "id": "tick", "label": "Tick检测", "feature": "vm_check_tick" },
+    { "id": "mouse", "label": "鼠标轨迹", "feature": "vm_check_mouse" },
+    { "id": "desktop_files", "label": "桌面文件", "feature": "vm_check_desktop_files" }
+  ],
+  "defaults": {
+    "encryption": "rc4",
+    "run_mode": "create_thread"
+  }
+}
+```
+
+## 🔧 命令行加密
+
+也可以单独使用加密脚本：
+
+```bash
+python encrypt.py -i input.bin -o output.bin -m rc4
+```
+
+参数：
+- `-i, --input` - 输入的二进制文件
+- `-o, --output` - 输出的加密文件
+- `-m, --method` - 加密方式（rc4）
+
+## 📝 编译特性
+
+使用 Cargo features 控制编译功能：
+
+```bash
+# 示例：启用 RC4 解密 + CreateThread 运行 + Tick 检测 + 鼠标检测 + 桌面文件检测
+cargo build --release --no-default-features \
+  --features=decrypt_rc4,run_create_thread,vm_check_tick,vm_check_mouse,vm_check_desktop_files
+```
+
+## 🛠️ 二次开发
+
+### 添加新的加密方式
+1. 在 `encrypt.py` 中添加加密函数
+2. 在 `src/exec_shellcode/` 中添加对应的解密模块
+3. 在 `Cargo.toml` 中添加 feature
+4. 在 `config/plugins.json` 中注册
+
+### 添加新的运行方式
+1. 在 `src/exec_shellcode/` 中实现执行逻辑
+2. 在 `Cargo.toml` 中添加 feature
+3. 在 `config/plugins.json` 中注册
+
+## 📸 截图
+
+![alt text](static/front.png)
+
+过火绒：
+![alt text](static/pass1.png)
+
+过微步：
+![alt text](static/pass2.png)
+
+过360：
+![alt text](static/pass3.png)
+
+
+## ⚠️ 免责声明
+
+本工具仅供安全研究和教育目的使用。使用者需遵守当地法律法规，不得用于非法用途。作者不对任何滥用行为承担责任。
+
+## 📄 开源许可
+
+本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件。
+
+## 🙏 致谢
+
+- [JoJoLoader](https://github.com/Pizz33/JoJoLoader) by [@Pizz33](https://github.com/Pizz33)
+- [sigthief](https://github.com/secretsquirrel/SigThief) - 签名伪造工具
+- Rust 社区
+- PyQt5 开发团队
+
+⭐ 如果这个项目对你有帮助，请给一个 Star！

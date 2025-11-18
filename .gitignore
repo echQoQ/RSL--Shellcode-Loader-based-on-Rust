@@ -1,0 +1,4 @@
+target/*
+src/encrypt.bin
+output/*
+*/__pycache__/
