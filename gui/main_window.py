@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (
     QApplication, QWidget, QLineEdit, QPushButton, QTextEdit, QComboBox,
     QVBoxLayout, QHBoxLayout, QGroupBox, QMessageBox, QProgressBar, QCheckBox, QGridLayout
 )
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QMovie
 import json
 from .widgets import BinComboBox, IcoComboBox
 from .sign import SignAppComboBox
@@ -372,7 +372,7 @@ class LoaderGUI(QWidget):
         self.gen_btn = QPushButton(QIcon(os.path.join('gui', 'icons' ,'rocket.ico')), '')
         self.gen_btn.setIconSize(QSize(100, 100))
         # 设定高度与日志框一致，且为正方形
-        fixed_height = 120
+        fixed_height = 150
         self.gen_btn.setFixedSize(fixed_height, fixed_height)
         
         right_layout.addWidget(self.forgery_enable_box)
@@ -386,12 +386,29 @@ class LoaderGUI(QWidget):
         layout.addLayout(bottom_layout)
         self.setLayout(layout)
 
+        # 初始化加载动画
+        self.loading_movie = QMovie(os.path.join('gui', 'icons', 'loading.gif'))
+        self.loading_movie.setScaledSize(QSize(100, 100))
+        self.loading_movie.frameChanged.connect(self.update_loading_icon)
+
+    def update_loading_icon(self):
+        self.gen_btn.setIcon(QIcon(self.loading_movie.currentPixmap()))
+
+    def start_loading_anim(self):
+        self.original_icon = self.gen_btn.icon()
+        self.loading_movie.start()
+
+    def stop_loading_anim(self):
+        self.loading_movie.stop()
+        self.gen_btn.setIcon(self.original_icon)
+
     # 已无下拉框，无需切换
     def vm_custom_toggle(self, idx):
         pass
 
     def run_all(self):
         self.gen_btn.setEnabled(False)
+        self.start_loading_anim()
         input_bin = self.bin_box.itemData(self.bin_box.currentIndex())
         if not input_bin:
             input_bin = 'calc.bin'
@@ -420,12 +437,14 @@ class LoaderGUI(QWidget):
         self.worker.error_signal.connect(self.on_gen_error)
         self.worker.start()
     def on_gen_error(self, msg):
+        self.stop_loading_anim()
         self.gen_btn.setEnabled(True)
         self.progress.setValue(0)
         self.log_append('[错误] ' + msg)
         QMessageBox.critical(self, '错误', msg)
 
     def on_gen_done(self, dst_file):
+        self.stop_loading_anim()
         self.progress.setValue(100)
         self.gen_btn.setEnabled(True)
         QMessageBox.information(self, '完成', f'生成成功: {dst_file}')
