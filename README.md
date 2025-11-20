@@ -73,7 +73,6 @@ RSL/
 - **Cargo** (Rust 包管理器)
 
 ### 安装依赖
-
 #### Python 依赖
 ```bash
 pip install PyQt5 pycryptodome
