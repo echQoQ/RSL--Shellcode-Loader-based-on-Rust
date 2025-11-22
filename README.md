@@ -8,6 +8,30 @@
 
 ![alt text](static/front.png)
 
+
+## 项目优势
+
+### Rust免杀
+- **静态链接和零依赖**：Rust 程序可以静态链接所有依赖库，生成单一的独立二进制文件，减少外部库的特征签名，降低被杀毒软件检测到的概率。
+- **高效编译优化**：通过 LTO（链接时优化）、strip（移除符号表）和 codegen-units=1 等配置，生成更紧凑和混淆的二进制代码，特征更难被逆向分析。
+- **无运行时开销**：Rust 编译为原生机器码，无需虚拟机或解释器运行，避免了像 .NET 或 Java 那样的明显运行时特征。
+- **高级混淆特性**：利用 Rust Nightly 的特性，如路径修剪（trim-paths）、panic immediate-abort 和重新编译标准库，彻底移除调试信息、路径字符串和 panic 消息，进一步增强隐蔽性。
+- **条件编译和模块化**：利用 Cargo features 实现条件编译，用户可根据需要选择启用特定加密方式、运行模式或检测策略，只编译必要的代码模块，显著减少二进制文件大小和特征签名，
+
+### GUI
+- **用户友好**：基于 PyQt5 的图形界面让用户无需掌握命令行知识，即可轻松配置参数和生成加载器，降低了使用门槛。
+- **集成化操作**：将 Shellcode 选择、加密方式配置、图标设置、反沙箱检测勾选、运行模式选择、签名伪造和文件捆绑等所有步骤集成在一个界面中，实现一键生成，简化工作流程。
+- **直观可视化**：提供下拉菜单、复选框和文件选择器等控件，直观展示选项，避免手动输入错误，提高配置准确性。
+- **实时反馈**：界面显示配置状态和生成进度，用户能即时了解操作结果，便于调试和调整。
+- **跨平台兼容**：支持Windows、Linux 和 macOS跨平台兼容，确保在不同操作系统上的一致体验。
+- **插件化扩展**：GUI 基于配置文件动态加载功能模块，支持添加新加密方式、运行模式或检测策略，无需修改代码即可扩展。
+
+### 可拓展性
+- **插件化架构**：基于 `config/plugins.json` 配置文件动态加载功能模块，新插件只需实现特定接口（如 `name` 和 `process` 函数），即可自动被 GUI 和命令行工具识别，无需修改核心代码。
+- **模块化设计**：加密方式、运行模式和 VM 检测等功能模块独立存放（如 `encrypt_plugins/`、`src/decrypt/`、`src/exec_shellcode/`、`src/guard/`），便于单独开发和维护。
+- **灵活的 Cargo features**：通过 Cargo features 控制编译内容，用户可选择性启用所需功能，减少不必要代码，优化二进制大小和性能。
+- **易于二次开发**：提供详细的二次开发指南，支持添加新加密方式、运行方式或检测策略，只需在相应目录添加代码并注册到配置文件中。
+
 ## ✨ 特性
 
 ### 🔐 加密方式
@@ -34,17 +58,8 @@
 ## 📦 项目结构
 
 ```
-RSL/
+RustSL/
 ├── gui/                     # PyQt5 图形界面与组件
-│   ├── main_window.py       # 主窗口逻辑
-│   ├── widgets.py           # 自定义控件
-│   ├── sign.py              # 签名相关界面与逻辑
-│   ├── config_manager.py    # 配置管理
-│   ├── styles.py            # 样式表与主题
-│   ├── worker.py            # 后台任务与多线程
-│   ├── ui_components.py     # 复用 UI 组件
-│   ├── __init__.py          # 包初始化
-│   └── icons/               # 内部图标资源
 ├── src/                     # Rust 核心代码
 │   ├── main.rs              # Rust 主程序入口
 │   ├── alloc_mem/           # 内存分配相关模块
@@ -53,18 +68,10 @@ RSL/
 │   ├── forgery/             # 资源伪造与混淆
 │   ├── guard/               # 反沙箱/反虚拟机检测
 │   └── utils/               # 工具函数
-├── config/                  # 配置文件目录
+├── config/                  
 │   └── plugins.json         # 插件与功能配置
-├── encrypt_plugins/         # Python 加密插件目录（每个插件为独立模块）
-│   ├── __init__.py
-│   ├── ipv4.py
-│   ├── ipv6.py
-│   ├── mac.py
-│   ├── uuid.py
-│   └── rc4.py
-├── sign/                    # 签名相关与第三方工具
-│   ├── sigthief.py          # 签名伪造脚本
-│   └── app/                 # 第三方签名工具存放
+├── encrypt_plugins/         # Python 加密插件目录
+├── sign/                    # 签名相关
 ├── encrypt.py               # Shellcode 加密脚本
 ├── main.py                  # GUI 启动入口
 ├── Cargo.toml               # Rust 项目配置文件
@@ -100,8 +107,10 @@ pip install -r requirements.txt
 
 本项目依赖 Rust Nightly 版本及 `build-std` 特性以优化体积和去除特征。
 
+##### Windows: 
+
 1. **安装 Rustup**
-   - Windows: 下载并运行 [rustup-init.exe](https://win.rustup.rs/)
+   - 下载并运行 [rustup-init.exe](https://win.rustup.rs/)
 
 2. **配置 Nightly 工具链**
    项目根目录已包含 `rust-toolchain.toml`，进入目录后 Rustup 会自动检测。你需要手动安装 Nightly 工具链及源码组件：
@@ -120,6 +129,38 @@ pip install -r requirements.txt
    ```bash
    cargo +nightly --version
    ```
+
+##### Linux / macOS:
+1. **安装 Rustup**
+   ```bash
+   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+   source $HOME/.cargo/env
+   ```
+2. **配置 Nightly 工具链**
+   ```bash
+    rustup install nightly
+    rustup component add rust-src --toolchain nightly
+    rustup target add x86_64-pc-windows-gnu --toolchain nightly
+   ```
+3. **安装交叉编译工具**
+   - Ubuntu/Debian:
+     ```bash
+     sudo apt update
+     sudo apt install gcc-mingw-w64
+     ```
+   - Arch Linux:
+     ```bash
+     sudo pacman -S mingw-w64-gcc
+     ```
+   - macOS (使用 Homebrew):
+     ```bash
+     brew install mingw-w64
+     ```
+
+4. **验证环境**
+   ```bash
+    cargo +nightly --version
+    ```
 
 ### 使用方法
 
@@ -233,36 +274,10 @@ cargo build --release --no-default-features \
 ## 🛠️ 二次开发
 
 ### 添加新的加密方式
-1. 在 encrypt_plugins/ 中添加加密脚本插件
+1. 在 encrypt_plugins/ 中添加加密插件脚本
 2. 在 src/decrypt/ 中添加对应的解密模块
 3. 在 Cargo.toml 中添加 feature
 4. 在 config/plugins.json 中注册
-
-加密插件示例：`encrypt_plugins/myplugin.py`
-```python
-name = 'myplugin'
-description = '示例：自定义加密插件'
-
-def add_arguments(parser):
-  parser.add_argument('--rounds', type=int, default=3, help='polymorph rounds')
-
-def process(data, args):
-  # 返回 bytes（未 base64 编码）
-  rounds = getattr(args, 'rounds', 3)
-  # 在这里实现加密逻辑，示例为伪代码：
-  buf = bytearray(data)
-  for r in range(rounds):
-    # 修改 buf
-    pass
-  # 返回最终字节数据
-  return bytes(buf)
-```
-
-插件约定（两种任选其一）：
-- 模块级：导出 `name`(str) 和 `process(data, args)` 函数，可选 `add_arguments(parser)`；
-- 类级：导出 `Plugin` 类，实例需具备 `name` 属性与 `process(self,data,args)` 方法，可选 `add_arguments(self,parser)`。
-
-加载器行为：程序启动时会扫描 `encrypt_plugins/` 下的 `.py` 文件，导入符合约定的模块并将 `name` 暴露给 `-m/--method`。如果插件实现 `add_arguments`，只有在该插件被选中时才会调用以避免参数冲突。
 
 ### 添加新的运行方式
 1. 在 `src/exec/` 中实现执行逻辑
@@ -319,3 +334,4 @@ def process(data, args):
 - **重构decrypt模块**：将具体解密函数拆分到子文件中
 - **重构并新增alloc_mem模块**：新增alloc_mem_global和alloc_mem_local实现内存分配
 - **重构并新增exec模块**：新增EnumUILanguagesW 回调注入和GDI 家族变种注入
+- **完善跨平台兼容性**： 修复 Linux 和 macOS 下的编译和运行问题
