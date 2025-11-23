@@ -7,19 +7,14 @@ edition = "2021"
 
 [dependencies]
 tempfile = "3.10.1"
-rand= "0.8.5"
 base64 = "0.21.5"
 winapi = { version = "0.3.9", features = ["winhttp", "winuser", "memoryapi", "synchapi", "handleapi", "errhandlingapi", "processthreadsapi", "debugapi", "sysinfoapi", "fileapi", "winbase", "iphlpapi", "ntdef", "ifdef", "winsock2", "iptypes", "ws2def", "processenv","debugapi"] }
 windows-sys = { version = "0.42.0", features = ["Win32_System_Memory", "Win32_Foundation", "Win32_System_Threading", "Win32_System_LibraryLoader"] }
-time = "0.3.30"
 winreg = "0.52.0"
-libloading ="0.8.3"
 uuid = { version = "1.0", features = ["v4"] }
-libc = "0.2"
 memmap2 = "0.6.1"
 dirs = "4.0"
 sha2 = "0.10"
-obfstr = "0.3"
 rustcrypt-ct-macros = "0.1"
 serde = { version = "1.0", features = ["derive"] }
 rc4 = "0.1"
@@ -28,8 +23,6 @@ typenum = "1.16"
 
 [build-dependencies]
 embed-resource = "1.8.0"
-base64 = "0.21.5"
-rand = "0.8.5"
 
 [features]
 
